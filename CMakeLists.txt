@@ -12,4 +12,4 @@ function(add_example_plugin PLUGIN_NAME)
 endfunction()
 
  
-# add_example_plugin(Add Add.cpp)
+add_example_plugin(Day1 Day1.cpp)
