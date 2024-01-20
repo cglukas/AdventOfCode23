@@ -49,14 +49,13 @@ void Day1::_validate(bool)
 
 int Day1::solve_the_puzzle()
 {
+    int sum = 0;
+ 
     if(sizeof(text) == 0){
-        return 0;
+        return sum;
     }
     
-
     char const *digits = "0123456789";
-
-    int sum = 0;
 
     std::string words = "one|two|three|four|five|six|seven|eight|nine";
     std::regex word_rgx(words);
@@ -105,8 +104,9 @@ int Day1::solve_the_puzzle()
             right = 0;
         }
 
-        std::regex_iterator<std::string::iterator> line_iter(line.begin(), line.end(), word_rgx);
 
+        // Search from left to right for any words.
+        std::regex_iterator<std::string::iterator> line_iter(line.begin(), line.end(), word_rgx);
         while(line_iter != line_end){
             if ((std::size_t) line_iter->position() < left){
                 a=word_to_digit[line_iter->str()];
@@ -115,9 +115,9 @@ int Day1::solve_the_puzzle()
             line_iter++;
         }
 
+        // Search from right to left for any words.
         std::string line_reversed = line;
         std::reverse(line_reversed.begin(), line_reversed.end());
-        std::cout << line_reversed << "\n";
 
         std::regex_iterator<std::string::iterator> line_reverse_iter(line_reversed.begin(), line_reversed.end(), word_reverse_rgx);
         std::size_t reversed_right = line.length()-right;
@@ -130,9 +130,8 @@ int Day1::solve_the_puzzle()
             }
             line_reverse_iter++;
         }
-        std::cout << a << "-" << b << ": "<< line << "\n";
-        sum += std::stoi(a+b);
 
+        sum += std::stoi(a+b);
     }
 
     return sum;
