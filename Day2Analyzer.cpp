@@ -29,6 +29,7 @@ private:
     float max_values[3];
     float puzzleResult;
     bool _firstTime;
+    bool advanced_mode;
     std::vector<int> too_high_rows;
     Lock _lock;
 };
@@ -61,24 +62,28 @@ void Day2Analyzer::engine(int y, int x, int r, ChannelMask channels, Row &row)
                 if ( aborted() )
                     return;
                 bool is_too_high = false;
-                foreach( z, readChannels ) {                    
-                    const float max_allowed_value = max_values[colourIndex(z)];
+                float highest_vals[3] = {0.0f,0.0f,0.0f};
+                foreach( z, readChannels ) {                  
+                    int idx= colourIndex(z);  
+                    const float max_allowed_value = max_values[idx];
                     const float *CUR = row[z] + fx;
                     const float *END = row[z] + fr;
                     while ( CUR < END ) {
+                        highest_vals[idx] = std::max(*CUR, highest_vals[idx]);
                         if (*CUR > max_allowed_value){
                             is_too_high = true;
                         }
                         CUR++;
                     }
-                    std::cout << "ColorIndex" << colourIndex(z) << ":"<<z<<"\n";
-                    std::cout << max_allowed_value << "->" << z << "\n";
                 }
-                std::cout << "ry: " << ry << "-> to high: " << is_too_high << "\n";
 
-                if(!is_too_high){
+                if(!is_too_high && !advanced_mode){
                     puzzleResult+= ry;
-                }else{
+                }else if(advanced_mode){
+                    std::cout << highest_vals[0] << "," << highest_vals[1] << "," << highest_vals[2]  << "\n";
+                    puzzleResult+= highest_vals[0] * highest_vals[1] * highest_vals[2];
+                }
+                else{
                     too_high_rows.push_back(ry);
                 }
                
@@ -109,6 +114,7 @@ void Day2Analyzer::engine(int y, int x, int r, ChannelMask channels, Row &row)
 void Day2Analyzer::knobs(Knob_Callback f)
 {
     Color_knob(f, max_values, "max_values");
+    Bool_knob(f, &advanced_mode, "advanced_mode");
 }
 
 void Day2Analyzer::_open()
