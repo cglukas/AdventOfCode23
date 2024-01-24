@@ -14,3 +14,4 @@ endfunction()
  
 add_example_plugin(Day1 Day1.cpp)
 add_example_plugin(Day2Generator Day2Generator.cpp)
+add_example_plugin(Day2Analyzer Day2Analyzer.cpp)
