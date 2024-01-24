@@ -30,7 +30,7 @@ public:
     void knobs(Knob_Callback) override;
 private:
     const char *text = nullptr;
-    Format my_format = Format(20, 10, 0, 1 , 20, 10, 1);
+    Format my_format = Format(20, 1, 1);
     std::map<int, Game> games;
     void process_text();
 
@@ -53,10 +53,16 @@ void Day2Generator::pixel_engine(const Row &in, int y, int l, int r, ChannelMask
         const int color_idx = colourIndex(z);
         const float *inptr= in[z];
         float *outptr = out.writable(z);
-        for (int x = 0; x < g.colors.size(); x++){
-            outptr[x] = (float) g.colors[x].rgb[color_idx];
+        std::size_t colors(g.colors.size());
+        for (int x = l; x < r; x++){
+            if(x < colors){
+                outptr[x] = (float) g.colors[x].rgb[color_idx];
+            }else{
+                outptr[x] = 0.0f;
+            }
         }
     }
+    
 }
 
 void Day2Generator::_validate(bool for_real)
@@ -108,7 +114,7 @@ void Day2Generator::process_text()
         game_count= g.game_num>game_count ? g.game_num : game_count;
         games[g.game_num] = g;
     }
-    my_format = Format(20, game_count, 0, 1 , 20, game_count, 1);
+    my_format= Format(20, game_count+1, 1);
 }
 
 static Iop* build(Node* node) { return new Day2Generator(node); }
