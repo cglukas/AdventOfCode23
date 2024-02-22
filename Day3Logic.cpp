@@ -43,6 +43,13 @@ bool isNumber(const char letter);
 /// @param all_numbers 2d vector of numbers that will be filled with found numbers. First dimension will be the row followed by the entries of the line.
 void fetchNumbersAndStars(const std::string &puzzle_input, std::vector<Star> &stars, std::vector<std::vector<Number>> &all_numbers);
 
+/// @brief Fetch all numbers and stars of the text line.
+/// @param line text line with numbers and stars.
+/// @param row current row number for defining the row attribute of found stars.
+/// @param stars vector of stars where new found stars are added.
+/// @return vector of all numbers of the current line. Ordered by appearance.
+std::vector<Number> processLine(const std::string &line, const int row, std::vector<Star> &stars);
+
 /// @brief Compute the result of the puzzle.
 /// 
 /// This will sum up all numbers that are adjacent to a star by one step in the grid.
@@ -141,9 +148,6 @@ bool isNumber(const char letter){
 
 void fetchNumbersAndStars(const std::string &puzzle_input, std::vector<Star> &stars, std::vector<std::vector<Number>> &all_numbers)
 {
-    Number *n;
-    bool writingNumber = false;
-    char curr_char;
 
     int row = 0;
 
@@ -156,49 +160,60 @@ void fetchNumbersAndStars(const std::string &puzzle_input, std::vector<Star> &st
 
     for (std::string line; std::getline(raw_data, line);)
     {
-        std::vector<Number> row_numbers = {};
-        for (int i = 0; i < line.size(); i++)
+        std::vector<Number> row_numbers = processLine(line, row, stars);
+        all_numbers.push_back(row_numbers);
+        row++;
+    }
+}
+
+std::vector<Number> processLine(const std::string &line, const int row, std::vector<Star> &stars)
+{
+    std::vector<Number> row_numbers = {};
+
+    Number *n;
+    bool writingNumber = false;
+    char curr_char;
+
+    for (int i = 0; i < line.size(); i++)
+    {
+        curr_char = line[i];
+
+        if (isNumber(curr_char))
         {
-            curr_char = line[i];
-
-            if (isNumber(curr_char))
+            if (!writingNumber)
             {
-                if (!writingNumber)
-                {
-                    n = new Number();
-                    n->start = i;
-                    n->row = row;
-                    writingNumber = true;
-                }
-                n->str += curr_char;
-                continue;
+                n = new Number();
+                n->start = i;
+                n->row = row;
+                writingNumber = true;
             }
-
-
-            if (writingNumber)
-            {
-                n->end = i - 1;
-                row_numbers.push_back(*n);
-                writingNumber = false;
-            }
-
-            if (curr_char == '.')
-            {
-                continue;
-            }
-
-            Star s{row, i};
-            stars.push_back(s);
+            n->str += curr_char;
+            continue;
         }
 
         if (writingNumber)
         {
-            n->end = (int) line.size() - 1;
+            n->end = i - 1;
             row_numbers.push_back(*n);
             writingNumber = false;
         }
 
-        all_numbers.push_back(row_numbers);
-        row++;
+        if (curr_char == '.')
+        {
+            continue;
+        }
+
+        Star s{row, i};
+        stars.push_back(s);
     }
+
+    // If the line ends and we are still writing a number, we need to finish it and add it too.
+    if (writingNumber)
+    {
+        n->end = (int)line.size() - 1;
+        row_numbers.push_back(*n);
+        writingNumber = false;
+    }
+
+    return row_numbers;
 }
