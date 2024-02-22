@@ -65,6 +65,25 @@ std::vector<Number> processLine(const std::string &line, const int row, std::vec
 /// @return sum of the numbers that are adjacent to any star.
 int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<Number>> &all_numbers);
 
+/// @brief Check if the number is adjacent to the star.
+/// @param star The reference star for checking.
+/// @param number The number to check it it intersects the 8 grid fields arround the star.
+/// @return True if the number is adjacent to the star
+bool isNumberAdjacentToStar(const Star &star, const Number &number);
+
+/// @brief Compute the result of the puzzle for part two.
+/// 
+/// This will sum up all gear ratios. A gear ratio is the product of two adjacent numbers next to a gear star.
+/// Only gear stars with exactly two numbers are processed. For example the output of this would be 16:
+/// ..2
+/// .*.
+/// 8..
+///
+/// @param stars vector of stars that will be used for the computation.
+/// @param all_numbers 2d vector of numbers. First dimension needs to be the row followed by the entries of the line.
+/// @return sum of all gear ratios.
+int computeResultPart2(const std::vector<Star> &stars, const std::vector<std::vector<Number>> &all_numbers);
+
 /// @brief Print counts of found Stars and GearStars.
 /// @param stars vector of all stars.
 void printStarInfo(const std::vector<Star> &stars);
@@ -82,14 +101,27 @@ void solve_day3(const std::string puzzle_input)
     std::cout << "The result is: "<< result << "\n";
 }
 
+/// @brief Process the input and print out the result for the second part of the puzzle.
+/// @param puzzle_input input text.
+void solveDay3Part2(const std::string puzzle_input)
+{
+    std::vector<std::vector<Number>> all_numbers;
+    std::vector<Star> stars;
+
+    fetchNumbersAndStars(puzzle_input, stars, all_numbers);    
+    printStarInfo(stars);
+    int result = computeResultPart2(stars, all_numbers);
+    std::cout << "The result for part 2 is: "<< result << "\n";
+}
+
 
 int main(int argc, char **argv){
     std::cout << "Start" << "\n";
-    std::string inputFile("../../Day3TestInput.txt");
+    std::string inputFile("Day3TestInput.txt");
     if(argc == 2){
         inputFile = argv[1];
     }
-    solve_day3(inputFile);
+    solveDay3Part2(inputFile);
     std::cout << "Finished\n";
     return 0;
 }
@@ -124,9 +156,7 @@ int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<
             {
                 Number num = numbers[k];
                 if (
-                    (curr_star.column == num.start || curr_star.column == num.start+1 || curr_star.column == num.start -1) ||
-                    (curr_star.column == num.end || curr_star.column == num.end+1 || curr_star.column == num.end -1)
-                    )
+                    isNumberAdjacentToStar(curr_star, num))
                 {
                     // std::cout << num << "\n";
                     star_result += std::stoi(num.str);
@@ -135,6 +165,56 @@ int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<
         }
         // std::cout << "Star Result: " << star_result << "\n";
         result += star_result;
+    }
+    return result;
+}
+
+bool isNumberAdjacentToStar(const Star &curr_star,const Number &num)
+{
+    return (curr_star.column == num.start || curr_star.column == num.start + 1 || curr_star.column == num.start - 1) ||
+           (curr_star.column == num.end || curr_star.column == num.end + 1 || curr_star.column == num.end - 1);
+}
+
+int computeResultPart2(const std::vector<Star> &stars, const std::vector<std::vector<Number>> &all_numbers)
+{
+    int result = 0;
+    for(int i = 0; i < stars.size(); i++){
+        Star curr_star = stars[i];
+        if(!curr_star.is_gear){
+            continue;
+        }
+
+        int min_row = std::max(curr_star.row - 1, 0);
+        int max_row = std::min(curr_star.row + 1, (int) all_numbers.size()-1);
+
+        std::vector<Number> adjacent_nums = {};
+        int found_numbers = 0;
+        for(int row = min_row; row <= max_row; row++){
+            std::vector<Number> numbers = all_numbers[row];
+            for(int k=0; k<numbers.size(); k++){
+                Number num = numbers[k];
+                if(isNumberAdjacentToStar(curr_star, num)){
+                    adjacent_nums.push_back(num);
+                    found_numbers++;
+                }
+                if(found_numbers > 2){
+                    // found_numbers > 2 means we found a third one, which invalidates the star as a gear.
+                    break;
+                }
+            }
+            if(found_numbers > 2){
+                // We also need to break here to limit iterations over other rows.
+                break;
+            }
+        }
+        
+        if(found_numbers != 2){
+            // Skip this star as it has too many or too few numbers adjacent to it.
+            continue;
+        }
+        int gear_ratio = std::stoi(adjacent_nums[0].str) * std::stoi(adjacent_nums[1].str);
+        result += gear_ratio;
+
     }
     return result;
 }
