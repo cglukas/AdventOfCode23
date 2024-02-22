@@ -32,21 +32,10 @@ std::ostream& operator<<(std::ostream& os, const Star& star){
 }
 
 
-
-
 /// @brief Check if a letter is a digit.
 /// @param letter the letter to check. 
 /// @return true if the letter is a digit.
-bool isNumber(const char letter){
-    char *numbers = "0123456789";
-    while (*numbers != '\0') {
-        if (letter == *numbers ){
-            return true;
-        }
-        numbers++;
-    }
-    return false;
-}
+bool isNumber(const char letter);
 
 /// @brief Fetch all numbers and special characters (aka stars) from the input text.
 /// @param puzzle_input text with numbers and stars.
@@ -137,6 +126,17 @@ int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<
         result += star_result;
     }
     return result;
+}
+
+bool isNumber(const char letter){
+    char *numbers = "0123456789";
+    while (*numbers != '\0') {
+        if (letter == *numbers ){
+            return true;
+        }
+        numbers++;
+    }
+    return false;
 }
 
 void fetchNumbersAndStars(const std::string &puzzle_input, std::vector<Star> &stars, std::vector<std::vector<Number>> &all_numbers)
