@@ -21,13 +21,15 @@ std::ostream& operator<<(std::ostream& os, const Number& num){
 }
 
 struct Star{
+    bool is_gear;
     int row;
     int column;
 };
 
 
 std::ostream& operator<<(std::ostream& os, const Star& star){
-    os << "Star(" << star.row << "," << star.column << ")";
+    std::string type = star.is_gear ? "GearStar"  : "Start";
+    os << type << "(" << star.row << "," << star.column << ")";
     return os;
 }
 
@@ -63,6 +65,9 @@ std::vector<Number> processLine(const std::string &line, const int row, std::vec
 /// @return sum of the numbers that are adjacent to any star.
 int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<Number>> &all_numbers);
 
+/// @brief Print counts of found Stars and GearStars.
+/// @param stars vector of all stars.
+void printStarInfo(const std::vector<Star> &stars);
 
 /// @brief Process the input and print out the result.
 /// @param puzzle_input input text.
@@ -72,6 +77,7 @@ void solve_day3(const std::string puzzle_input)
     std::vector<Star> stars;
 
     fetchNumbersAndStars(puzzle_input, stars, all_numbers);    
+    printStarInfo(stars);
     int result = computeResult(stars, all_numbers);
     std::cout << "The result is: "<< result << "\n";
 }
@@ -91,8 +97,6 @@ int main(int argc, char **argv){
 
 int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<Number>> &all_numbers)
 {
-    std::cout << "Stars: " << stars.size() << "\n";
-
     int all_found_numbers = 0;
     for(int p=0; p<all_numbers.size(); p++){
         all_found_numbers += all_numbers[p].size();
@@ -133,6 +137,26 @@ int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<
         result += star_result;
     }
     return result;
+}
+
+void printStarInfo(const std::vector<Star> &stars)
+{
+    int raw_stars = 0;
+    int gear_stars = 0;
+    for (int i = 0; i < stars.size(); i++)
+    {
+        Star s = stars[i];
+        if (s.is_gear)
+        {
+            gear_stars++;
+        }
+        else
+        {
+            raw_stars++;
+        }
+    }
+    std::cout << "Stars: " << raw_stars << "\n";
+    std::cout << "GearStars: " << gear_stars << "\n";
 }
 
 bool isNumber(const char letter){
@@ -202,8 +226,8 @@ std::vector<Number> processLine(const std::string &line, const int row, std::vec
         {
             continue;
         }
-
-        Star s{row, i};
+        bool is_gear = curr_char == '*';
+        Star s{is_gear, row, i};
         stars.push_back(s);
     }
 
