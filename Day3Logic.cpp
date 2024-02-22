@@ -48,11 +48,29 @@ bool isNumber(const char letter){
     return false;
 }
 
+/// @brief Fetch all numbers and special characters (aka stars) from the input text.
+/// @param puzzle_input text with numbers and stars.
+/// @param stars empty vector that will be filled with found stars.
+/// @param all_numbers 2d vector of numbers that will be filled with found numbers. First dimension will be the row followed by the entries of the line.
 void fetchNumbersAndStars(const std::string &puzzle_input, std::vector<Star> &stars, std::vector<std::vector<Number>> &all_numbers);
 
-int computeResult(std::vector<Star> &stars, std::vector<std::vector<Number>> &all_numbers);
+/// @brief Compute the result of the puzzle.
+/// 
+/// This will sum up all numbers that are adjacent to a star by one step in the grid.
+/// Also diagonal steps are included so that the result of this input would add up to 10:
+/// ..1
+/// .#1
+/// 8..
+///
+/// @param stars vector of stars that will be used for the computation.
+/// @param all_numbers 2d vector of numbers. First dimension needs to be the row followed by the entries of the line.
+/// @return sum of the numbers that are adjacent to any star.
+int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<Number>> &all_numbers);
 
-std::string solve_day3(const std::string puzzle_input)
+
+/// @brief Process the input and print out the result.
+/// @param puzzle_input input text.
+void solve_day3(const std::string puzzle_input)
 {
     std::vector<std::vector<Number>> all_numbers;
     std::vector<Star> stars;
@@ -60,11 +78,22 @@ std::string solve_day3(const std::string puzzle_input)
     fetchNumbersAndStars(puzzle_input, stars, all_numbers);    
     int result = computeResult(stars, all_numbers);
     std::cout << "The result is: "<< result << "\n";
-
-    return "FINISHED";
 }
 
-int computeResult(std::vector<Star> &stars, std::vector<std::vector<Number>> &all_numbers)
+
+int main(int argc, char **argv){
+    std::cout << "Start" << "\n";
+    std::string inputFile("../../Day3TestInput.txt");
+    if(argc == 2){
+        inputFile = argv[1];
+    }
+    solve_day3(inputFile);
+    std::cout << "Finished\n";
+    return 0;
+}
+
+
+int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<Number>> &all_numbers)
 {
     std::cout << "Stars: " << stars.size() << "\n";
 
@@ -172,15 +201,4 @@ void fetchNumbersAndStars(const std::string &puzzle_input, std::vector<Star> &st
         all_numbers.push_back(row_numbers);
         row++;
     }
-}
-
-int main(int argc, char **argv){
-    std::cout << "Start" << "\n";
-    std::string inputFile("../../Day3TestInput.txt");
-    if(argc == 2){
-        inputFile = argv[1];
-    }
-    std::cout << solve_day3(inputFile) << "\n";
-    std::cout << inputFile << "\n";
-    return 0;
 }
