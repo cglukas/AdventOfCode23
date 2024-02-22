@@ -99,7 +99,7 @@ int computeResult(const std::vector<Star> &stars, const std::vector<std::vector<
 {
     int all_found_numbers = 0;
     for(int p=0; p<all_numbers.size(); p++){
-        all_found_numbers += all_numbers[p].size();
+        all_found_numbers += (int) all_numbers[p].size();
     }
     std::cout << "Found Numbers: " << all_found_numbers << "\n";
 
